@@ -26,6 +26,15 @@ const ReactTable = () => {
         ? Object.keys(products[0])
             .filter((key) => key !== "rating")
             .map((key) => {
+              if (key === "image") {
+                return {
+                  Header: key,
+                  accessor: key,
+                  Cell: ({ value }) => (
+                    <img src={value} style={{ width: "50px" }} />
+                  ),
+                };
+              }
               return { Header: key, accessor: key };
             })
         : [],
