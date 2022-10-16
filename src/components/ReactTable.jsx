@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { useTable } from "react-table";
+import { useSortBy, useTable } from "react-table";
 import { COLUMNS } from "../helpers/columns";
 import "./table.css";
 const ReactTable = () => {
@@ -32,7 +32,7 @@ const ReactTable = () => {
     [products]
   );
 
-  const tableInstance = useTable({ columns: productsColumns, data });
+  const tableInstance = useTable({ columns: productsColumns, data }, useSortBy);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
@@ -43,7 +43,12 @@ const ReactTable = () => {
         {headerGroups.map((headerGroup) => (
           <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+              <th {...column.getHeaderProps(column.getSortByToggleProps)}>
+                {column.render("Header")}
+                <span>
+                  {column.isSorted ? (column.isSortedDesc ? "🔻" : "🔼") : ""}
+                </span>
+              </th>
             ))}
           </tr>
         ))}
