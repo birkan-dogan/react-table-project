@@ -18,10 +18,21 @@ const ReactTable = () => {
     fetchProducts();
   }, []);
 
-  const columns = useMemo(() => COLUMNS, []);
-  const data = useMemo(() => products);
+  // const columns = useMemo(() => COLUMNS, []);
+  const data = useMemo(() => [...products], [products]);
+  const productsColumns = useMemo(
+    () =>
+      products[0]
+        ? Object.keys(products[0])
+            .filter((key) => key !== "rating")
+            .map((key) => {
+              return { Header: key, accessor: key };
+            })
+        : [],
+    [products]
+  );
 
-  const tableInstance = useTable({ columns, data });
+  const tableInstance = useTable({ columns: productsColumns, data });
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
