@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { useTable } from "react-table";
 import { COLUMNS } from "../helpers/columns";
+import "./table.css";
 const ReactTable = () => {
   const [products, setProducts] = useState([]);
 
@@ -16,14 +17,42 @@ const ReactTable = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
-  console.log(products);
 
   const columns = useMemo(() => COLUMNS, []);
   const data = useMemo(() => products);
 
   const tableInstance = useTable({ columns, data });
 
-  return <div>ReactTable</div>;
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
+
+  return (
+    <table {...getTableProps()}>
+      <thead>
+        {headerGroups.map((headerGroup) => (
+          <tr {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column) => (
+              <th {...column.getHeaderProps()}>{column.render("Header")}</th>
+            ))}
+          </tr>
+        ))}
+      </thead>
+      <tbody {...getTableBodyProps()}>
+        {rows.map((row) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()}>
+              {row.cells.map((cell, index) => (
+                <td {...cell.getCellProps()} key={index}>
+                  {cell.render("Cell")}
+                </td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
 };
 
 export default ReactTable;
