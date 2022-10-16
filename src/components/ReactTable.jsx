@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { useSortBy, useTable } from "react-table";
+import { useSortBy, useTable, usePagination } from "react-table";
 import { COLUMNS } from "../helpers/columns";
 import "./table.css";
 const ReactTable = () => {
@@ -16,6 +16,7 @@ const ReactTable = () => {
   };
   useEffect(() => {
     fetchProducts();
+    setPageSize(5);
   }, []);
 
   // const columns = useMemo(() => COLUMNS, []);
@@ -41,42 +42,65 @@ const ReactTable = () => {
     [products]
   );
 
-  const tableInstance = useTable({ columns: productsColumns, data }, useSortBy);
+  const tableInstance = useTable(
+    { columns: productsColumns, data },
+    useSortBy,
+    usePagination
+  );
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-    tableInstance;
-
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+    nextPage,
+    previousPage,
+    canPreviousPage,
+    canNextPage,
+    setPageSize,
+  } = tableInstance;
   return (
-    <table {...getTableProps()}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps(column.getSortByToggleProps)}>
-                {column.render("Header")}
-                <span>
-                  {column.isSorted ? (column.isSortedDesc ? "🔻" : "🔼") : ""}
-                </span>
-              </th>
-            ))}
-          </tr>
-        ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell, index) => (
-                <td {...cell.getCellProps()} key={index}>
-                  {cell.render("Cell")}
-                </td>
+    <>
+      <table {...getTableProps()}>
+        <thead>
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map((column) => (
+                <th {...column.getHeaderProps(column.getSortByToggleProps)}>
+                  {column.render("Header")}
+                  <span>
+                    {column.isSorted ? (column.isSortedDesc ? "🔻" : "🔼") : ""}
+                  </span>
+                </th>
               ))}
             </tr>
-          );
-        })}
-      </tbody>
-    </table>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {page.map((row) => {
+            prepareRow(row);
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map((cell, index) => (
+                  <td {...cell.getCellProps()} key={index}>
+                    {cell.render("Cell")}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div className="buttons">
+        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
+          Previous
+        </button>
+        <button onClick={() => nextPage()} disabled={!canNextPage}>
+          Next
+        </button>
+      </div>
+    </>
   );
 };
 
